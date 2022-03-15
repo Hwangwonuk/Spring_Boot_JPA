@@ -9,11 +9,11 @@
  */
 package hellojpa;
 
-import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import org.hibernate.HibernateException;
 
 /**
  * create on 2022/03/08. create by IntelliJ IDEA.
@@ -29,6 +29,7 @@ import javax.persistence.Persistence;
 public class JpaMain {
 
   public static void main(String[] args) {
+
     EntityManagerFactory emf = Persistence.createEntityManagerFactory("hello");
 
     EntityManager em = emf.createEntityManager();
@@ -38,16 +39,16 @@ public class JpaMain {
 
     try {
 
-      // 영속
-      Member member = new Member(260L, "member260");
+      Member member = new Member();
+      member.setId(3L);
+      member.setUsername("C");
+      member.setRoleType(RoleType.GUEST);
+
       em.persist(member);
-
-      em.flush();
-
-      System.out.println("===============");
 
       tx.commit();
     } catch (Exception e) {
+      e.printStackTrace();
       tx.rollback();
     } finally {
       em.close();
