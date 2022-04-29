@@ -9,6 +9,7 @@
  */
 package hellojpa;
 
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -39,30 +40,27 @@ public class JpaMain {
 
     try {
 
-      Member member1 = new Member();
-      member1.setUsername("A");
+      // 저장
+      Team team = new Team();
+      team.setName("TeamA");
+      em.persist(team);
 
-      Member member2 = new Member();
-      member2.setUsername("B");
+      Member member = new Member();
+      member.setUsername("member1");
+      member.setTeam(team);
+      em.persist(member);
 
-      Member member3 = new Member();
-      member3.setUsername("C");
+      em.flush();
+      em.clear();
 
-      System.out.println("==========");
+      Team findTeam = em.find(Team.class, team.getId()); // 1차 캐시
+      List<Member> members = findTeam.getMembers();
 
-      // DB SEQ = 1    |    1
-      // DB SEQ = 51   |    2
-      // DQ SEQ = 52   |    3
-
-      em.persist(member1); // 1, 51
-      em.persist(member2); // MEM
-      em.persist(member3); // MEM
-
-      System.out.println("member1 = " + member1.getId());
-      System.out.println("member2 = " + member2.getId());
-      System.out.println("member3 = " + member3.getId());
-
-      System.out.println("==========");
+      System.out.println("=========");
+      for (Member m : members) {
+        System.out.println("m = " + m.getUsername());
+      }
+      System.out.println("=========");
 
       tx.commit();
     } catch (Exception e) {
