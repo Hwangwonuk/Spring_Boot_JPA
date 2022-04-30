@@ -1,87 +1,100 @@
-/*
- * Created by Wonuk Hwang on 2022/03/18
- * As part of Bigin
- *
- * Copyright (C) Bigin (https://bigin.io/main) - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- * Written by infra Team <wonuk_hwang@bigin.io>, 2022/03/18
- */
 package jpabook.jpashop.domain;
 
-import java.time.LocalDateTime;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.aspectj.weaver.ast.Or;
 
-/**
- * create on 2022/03/18. create by IntelliJ IDEA.
- *
- * <p> </p>
- * <p> {@link } and {@link } </p> *
- *
- * @author wonukHwang
- * @version 1.0
- * @see
- * @since (ex : 5 + 5)
- */
+import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import static javax.persistence.FetchType.*;
+
 @Entity
+@Table(name = "orders")
+@Getter @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order {
 
-  @Id @GeneratedValue
-  @Column(name = "ORDER_ID")
-  private Long id;
+    @Id @GeneratedValue
+    @Column(name = "order_id")
+    private Long id;
 
-  @Column(name = "MEMBER_ID")
-  private Long memberId;
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
 
-  private Member member;
+    // JPQL select o From order o; -> SQL select * from order
 
-  public Member getMember() {
-    return member;
-  }
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    private List<OrderItem> orderItems = new ArrayList<>();
 
-  public void setMember(Member member) {
-    this.member = member;
-  }
+    @OneToOne(fetch = LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "delivery_id")
+    private Delivery delivery;
 
-  private LocalDateTime orderDate; // ORDER_DATE, order_date
+    // order_date
+    private LocalDateTime orderDate; // 주문시간
 
-  @Enumerated(EnumType.STRING)
-  private OrderStatus status;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status; // 주문상태 [ORDER, CANCEL]
 
-  public Long getId() {
-    return id;
-  }
+    // ==연관관계 편의 메서드== , 양방향일 때 사용
+    public void setMember(Member member) {
+        this.member = member;
+        member.getOrders().add(this);
+    }
 
-  public void setId(Long id) {
-    this.id = id;
-  }
+    public void addOrderItem(OrderItem orderItem) {
+        orderItems.add(orderItem);
+        orderItem.setOrder(this);
+    }
 
-  public Long getMemberId() {
-    return memberId;
-  }
+    public void setDelivery(Delivery delivery) {
+        this.delivery = delivery;
+        delivery.setOrder(this);
+    }
 
-  public void setMemberId(Long memberId) {
-    this.memberId = memberId;
-  }
+    // ==생성 메서드==
+    public static Order createOrder(Member member, Delivery delivery, OrderItem... orderItems) {
+        Order order = new Order();
+        order.setMember(member);
+        order.setDelivery(delivery);
+        for (OrderItem orderItem : orderItems) {
+            order.addOrderItem(orderItem);
+        }
+        order.setStatus(OrderStatus.ORDER);
+        order.setOrderDate(LocalDateTime.now());
+        return order;
+    }
 
-  public LocalDateTime getOrderDate() {
-    return orderDate;
-  }
+    // ==비지니스 로직==
+    /*
+     * 주문취소
+     * */
+    public void cancel() {
+        if (delivery.getStatus() == DeliveryStatus.COMP) {
+            throw new IllegalStateException("이미 배송완료된 상품은 취소가 불가능합니다.");
+        }
 
-  public void setOrderDate(LocalDateTime orderDate) {
-    this.orderDate = orderDate;
-  }
+        this.setStatus(OrderStatus.CANCEL);
+        for (OrderItem orderItem : orderItems) {
+            orderItem.cancel();
+        }
+    }
 
-  public OrderStatus getStatus() {
-    return status;
-  }
-
-  public void setStatus(OrderStatus status) {
-    this.status = status;
-  }
+    // ==조회 로직==
+    /*
+    * 전체 주문 가격 조회
+    * */
+    public int getTotalPrice() {
+        int totalPrice = 0;
+        for (OrderItem orderItem : orderItems) {
+            totalPrice += orderItem.getTotalPrice();
+        }
+        return totalPrice;
+    }
 }
