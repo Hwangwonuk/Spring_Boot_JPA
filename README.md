@@ -1,2 +1,2 @@
 # Spring_Boot_JPA
-Inflearn JPA 강의
+https://www.inflearn.com/course/ORM-JPA-Basic/dashboard
