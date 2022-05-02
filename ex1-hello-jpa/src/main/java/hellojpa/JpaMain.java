@@ -47,16 +47,18 @@ public class JpaMain {
 
       Member member = new Member();
       member.setUsername("member1");
-      member.setTeam(team);
       em.persist(member);
+
+      team.addMember(member);
 
       em.flush();
       em.clear();
 
       Team findTeam = em.find(Team.class, team.getId()); // 1차 캐시
       List<Member> members = findTeam.getMembers();
-
+// Entity는 Controller에서 반환하지 않아야 많은 문제가 해결된다 dto를 사용해야함
       System.out.println("=========");
+//      System.out.println("members = " + findTeam); 무한루프
       for (Member m : members) {
         System.out.println("m = " + m.getUsername());
       }

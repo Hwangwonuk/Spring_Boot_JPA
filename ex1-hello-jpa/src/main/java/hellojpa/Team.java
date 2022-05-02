@@ -39,6 +39,7 @@ public class Team {
 
   public void addMember(Member member) {
     member.setTeam(this);
+    members.add(member);
   }
 
   private String name;
@@ -68,5 +69,14 @@ public class Team {
 
   public void setMembers(List<Member> members) {
     this.members = members;
+  }
+
+  @Override
+  public String toString() {
+    return "Team{" +
+        "id=" + id +
+        ", name='" + name + '\'' +
+        ", members=" + members +
+        '}';
   }
 }
