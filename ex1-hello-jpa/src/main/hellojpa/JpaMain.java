@@ -9,12 +9,10 @@
  */
 package hellojpa;
 
-import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
-import org.hibernate.HibernateException;
 
 /**
  * create on 2022/03/08. create by IntelliJ IDEA.
@@ -40,25 +38,13 @@ public class JpaMain {
 
     try {
 
-      // 저장
+      Member member = saveMember(em);
+
       Team team = new Team();
-      team.setName("TeamA");
+      team.setName("teamA");
+      team.getMembers().add(member);
+
       em.persist(team);
-
-      Member member = new Member();
-      member.setUsername("member1");
-      member.setTeam(team);
-      em.persist(member);
-
-      em.flush();
-      em.clear();
-
-      Member findMember = em.find(Member.class, member.getId());
-      List<Member> members = findMember.getTeam().getMembers();
-
-      for (Member m : members) {
-        System.out.println("m = " + m.getUsername());
-      }
 
       tx.commit();
     } catch (Exception e) {
@@ -69,6 +55,14 @@ public class JpaMain {
     }
 
     emf.close();
+  }
+
+  private static Member saveMember(EntityManager em) {
+    Member member = new Member();
+    member.setUsername("member1");
+
+    em.persist(member);
+    return member;
   }
 
 }
