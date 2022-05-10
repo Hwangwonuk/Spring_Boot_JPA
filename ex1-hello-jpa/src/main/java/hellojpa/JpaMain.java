@@ -9,12 +9,10 @@
  */
 package hellojpa;
 
-import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
-import org.hibernate.HibernateException;
 
 /**
  * create on 2022/03/08. create by IntelliJ IDEA.
@@ -40,29 +38,13 @@ public class JpaMain {
 
     try {
 
-      // 저장
+      Member member = saveMember(em);
+
       Team team = new Team();
-      team.setName("TeamA");
+      team.setName("teamA");
+      team.getMembers().add(member);
+
       em.persist(team);
-
-      Member member = new Member();
-      member.setUsername("member1");
-      em.persist(member);
-
-      team.addMember(member);
-
-      em.flush();
-      em.clear();
-
-      Team findTeam = em.find(Team.class, team.getId()); // 1차 캐시
-      List<Member> members = findTeam.getMembers();
-// Entity는 Controller에서 반환하지 않아야 많은 문제가 해결된다 dto를 사용해야함
-      System.out.println("=========");
-//      System.out.println("members = " + findTeam); 무한루프
-      for (Member m : members) {
-        System.out.println("m = " + m.getUsername());
-      }
-      System.out.println("=========");
 
       tx.commit();
     } catch (Exception e) {
@@ -73,6 +55,14 @@ public class JpaMain {
     }
 
     emf.close();
+  }
+
+  private static Member saveMember(EntityManager em) {
+    Member member = new Member();
+    member.setUsername("member1");
+
+    em.persist(member);
+    return member;
   }
 
 }

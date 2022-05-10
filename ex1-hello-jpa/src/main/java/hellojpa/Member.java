@@ -9,25 +9,12 @@
  */
 package hellojpa;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 
 /**
  * create on 2022/03/08. create by IntelliJ IDEA.
@@ -51,7 +38,9 @@ public class Member {
   private String username;
 
   @ManyToOne
-  @JoinColumn(name = "TEAM_ID")
+  @JoinColumn(name = "TEAM_ID", insertable = false, updatable = false)
+  // insertable, updatable false -> 읽기 전용으로 만듬
+  // 일대다 양방향은 공식적으로 존재X 읽기 전용 필드를 사용해야함 일대다가 아닌 다대일을 사용하자.
   private Team team;
 
   public Long getId() {
@@ -68,24 +57,5 @@ public class Member {
 
   public void setUsername(String username) {
     this.username = username;
-  }
-
-  public Team getTeam() {
-    return team;
-  }
-
-  public void setTeam(Team team) {
-    this.team = team;
-
-//    team.getMembers().add(this);
-  }
-
-  @Override
-  public String toString() {
-    return "Member{" +
-        "id=" + id +
-        ", username='" + username + '\'' +
-        ", team=" + team +
-        '}';
   }
 }

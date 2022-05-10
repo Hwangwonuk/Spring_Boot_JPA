@@ -16,6 +16,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
@@ -38,7 +39,9 @@ public class Team {
   private Long id;
   private String name;
 
-  @OneToMany(mappedBy = "team")
+  @OneToMany
+  @JoinColumn(name = "TEAM_ID")
+  // JoinColumn을 사용하지 않으면 테이블이 새로 생겨버림 필수!
   private List<Member> members = new ArrayList<>();
 
   public Long getId() {
@@ -57,4 +60,11 @@ public class Team {
     this.name = name;
   }
 
+  public List<Member> getMembers() {
+    return members;
+  }
+
+  public void setMembers(List<Member> members) {
+    this.members = members;
+  }
 }
