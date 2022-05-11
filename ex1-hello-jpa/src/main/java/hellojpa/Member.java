@@ -9,12 +9,18 @@
  */
 package hellojpa;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 /**
  * create on 2022/03/08. create by IntelliJ IDEA.
@@ -42,6 +48,30 @@ public class Member {
   // insertable, updatable false -> 읽기 전용으로 만듬
   // 일대다 양방향은 공식적으로 존재X 읽기 전용 필드를 사용해야함 일대다가 아닌 다대일을 사용하자.
   private Team team;
+
+  @OneToOne
+  @JoinColumn(name = "LOCKER_ID")
+  private Locker locker;
+
+  @OneToMany
+  @JoinTable(name = "member")
+  private List<MemberProduct> memberProducts = new ArrayList<>();
+
+  public Team getTeam() {
+    return team;
+  }
+
+  public void setTeam(Team team) {
+    this.team = team;
+  }
+
+  public Locker getLocker() {
+    return locker;
+  }
+
+  public void setLocker(Locker locker) {
+    this.locker = locker;
+  }
 
   public Long getId() {
     return id;
